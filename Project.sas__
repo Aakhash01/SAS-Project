@@ -1,0 +1,320 @@
+/* Project:
+
+/* 1.	Import the data of product file in SAS environment and create a Product Dataset   */
+proc import datafile= "C:\Users\91971\Documents\Downloads\WorksheetForFinalProjectCaseStudy_C-SAS.xls"
+out = products
+dbms = xls replace;
+getnames=yes;
+run;
+proc print data = product ;
+run;
+
+
+/* 2.	Import only those records where Category is Fruit and Country is United States  */
+
+
+data new_products ;
+set products;
+if category = "Fruit" and Country = "United States";
+run;
+
+proc print data = new_products;
+run;
+
+/* 3.	Create a frequency table to display Country based Product information */
+
+Title"Frequency Table for country and product";
+data country_by_product ;
+set products;
+proc freq data = country_by_product ;
+tables country * product ;
+run;
+
+/* 4.	Create a new Dataset which should have only those products 
+which were ordered on or before 31st March 2012 */
+
+/* what are the products there  */
+
+proc contents data = products;
+run;
+
+data date_products ;
+set products;
+INFORMAT DATE DDMMYY8. ;
+FORMAT DATE DATE8. ;
+where date le "31MAR12"D ;
+RUN;
+PROC PRINT DATA = DATE_PRODUCTS ;
+RUN;
+
+
+/* 5.	Find out the countries which have 
+highest and lowest Amount */
+
+Title "Highest and Lowest Amount";
+data low_high;
+set products;
+proc sort data = low_high;
+by country;
+run;
+proc print data = low_high ;
+run;
+
+proc means data = low_high min max ;
+var amount;
+by country;
+run;
+
+/* Canada has highest amount accross the country and lowest amount except France */
+
+/* 6.	Write SAS code to create a report to have Country wise Category based sum of Amount  */
+
+Title "Report for country wise category's amount";
+proc report data = products;
+column country category amount;
+define country / order ;
+compute after;
+line @14"Total Sum of amount in all the country is:" Amount.sum ;
+endcomp;
+run;
+
+
+/* 7.	Create a new Dataset which should have a new variable Discount. Discount should be given as follows
+8.	If Amount is greater than $5000, Discount is 10% of the Amount
+9.	Else Discount is 5% of the Amount
+  */
+ 
+data new_products;
+set products;
+informat amount best8. ;
+format amount numeric8.;
+if amount >'5000' then Discount = "10% of amount";
+if amount le '5000' then Discount = "5% of amount";
+format amount dollar8. ;
+run;
+proc print data = new_products;
+run;
+
+/*10.	Write a SAS code to create a new Dataset for 
+every unique Country and it should have data of that 
+specific country  */
+
+
+title "USA Products";
+data USA_PRODUCTS;
+SET PRODUCTS;
+WHERE COUNTRY = "United States";
+run;
+proc print data = USA_PRODUCTS;
+RUN;
+
+
+/* Using proc sql and macro to execute all county details with products */
+
+proc sql;
+select distinct country into :x seperated by ' ' from products;
+quit;
+
+
+%macro country;
+%do i = 1 %to %eval(%sysfunc(count(&x, %str()))+1);
+data %scan(&x, &i.);
+set products;
+if country = "%scan(&x, &i.)";
+run;
+%end;
+%mend;
+
+%country;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
